@@ -79,12 +79,12 @@ def get_model(model_name,
     elif model_name == _FNO:
         model = FNO(n_modes=(fmode_row, fmode_col),
                     hidden_channels=exp.model.hidden_channels,
-                    domain_padding=exp.model.domain_padding,
+                    domain_padding=exp.model.domain_padding[0], # exp.model.domain_padding,
                     in_channels=in_channels,
                     out_channels=out_channels,
                     n_layers=exp.model.n_layers,
                     norm=exp.model.norm,
-                    separable=exp.model.separable)
+                    separable=False) # exp.model.separable)
     elif model_name == _UNO:
         model = UNO(in_channels=in_channels, 
                     out_channels=out_channels,
@@ -109,9 +109,10 @@ def get_model(model_name,
         model = GFNO2d(in_channels=in_channels,
                        out_channels=out_channels,
                        # GFNO only works for square modes.
-                       modes=fmode_row,
+                       modes=fmode_row // 2, # division by 2 is NEW
                        width=exp.model.width,
-                       reflection=exp.model.reflection) 
+                       reflection=exp.model.reflection,
+                       domain_padding=exp.model.domain_padding) # padding is NEW
     if exp.distributed:
         local_rank = int(os.environ['LOCAL_RANK'])
         model = model.to(local_rank).float()

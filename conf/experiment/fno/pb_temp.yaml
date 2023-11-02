@@ -27,3 +27,4 @@ optimizer:
 
 lr_scheduler:
   name: cosine
+  eta_min: 1e-6

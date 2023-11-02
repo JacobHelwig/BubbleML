@@ -111,6 +111,7 @@ def nparams(model):
 
 @hydra.main(version_base=None, config_path='../conf', config_name='default')
 def train_app(cfg):
+    torch.randn(1).cuda()
     print(OmegaConf.to_yaml(cfg))
     print(cfg.dataset.train_paths)
     assert cfg.test or cfg.train
@@ -167,6 +168,9 @@ def train_app(cfg):
         model.load_state_dict(torch.load(cfg.model_checkpoint))
     print(model)
     np = nparams(model)
+    print(f'Model has {np} parameters')
+
+    np = sum(p.numel() * (1 + p.is_complex()) for p in model.parameters())
     print(f'Model has {np} parameters')
 
     optimizer = torch.optim.Adam(model.parameters(),

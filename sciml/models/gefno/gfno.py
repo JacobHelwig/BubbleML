@@ -8,6 +8,8 @@ import torch
 import torch.nn as nn
 import math
 
+from neuralop.models.padding import DomainPadding
+
 # ----------------------------------------------------------------------------------------------------------------------
 # GFNO2d
 # ----------------------------------------------------------------------------------------------------------------------
@@ -213,7 +215,8 @@ class GFNO2d(nn.Module):
                  out_channels,
                  modes,
                  width,
-                 reflection):
+                 reflection,
+                 domain_padding=0):
         super(GFNO2d, self).__init__()
 
         """
@@ -232,6 +235,9 @@ class GFNO2d(nn.Module):
         self.modes = modes
         self.width = width
 
+        self.pad = domain_padding > 0
+        self.domain_padding = DomainPadding(domain_padding=domain_padding/2, padding_mode='symmetric')
+
         self.p = GConv2d(in_channels=self.in_channels, out_channels=self.width, kernel_size=1,
                          reflection=reflection, first_layer=True)
         self.conv0 = GSpectralConv2d(in_channels=self.width, out_channels=self.width, modes=self.modes, reflection=reflection)
@@ -249,6 +255,7 @@ class GFNO2d(nn.Module):
         self.norm = GNorm(self.width, group_size=4 * (1 + reflection))
         self.q = GMLP2d(in_channels=self.width, out_channels=self.out_channels, mid_channels=self.width * 4, reflection=reflection,
                         last_layer=True)
+        print(f"# parameters: {sum(p.numel() * (1 + p.is_complex()) for p in self.parameters())}")
 
     def forward(self, x):
         r"""
@@ -261,6 +268,9 @@ class GFNO2d(nn.Module):
         output, which is unnecessary for us.
         """
         x = self.p(x)
+
+        if self.pad:
+            x = self.domain_padding.pad(x)
 
         x1 = self.norm(self.conv0(self.norm(x)))
         x1 = self.mlp0(x1)
@@ -286,6 +296,9 @@ class GFNO2d(nn.Module):
         x = x1 + x2
 
         # x = x[..., :-self.padding, :-self.padding] # pad the domain if input is non-periodic
+        if self.pad:
+            x = self.domain_padding.unpad(x)
+
         x = self.q(x)
         return x
 

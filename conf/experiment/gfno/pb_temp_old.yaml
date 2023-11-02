@@ -1,4 +1,5 @@
-# Model has 56510469 parameters
+#  parameters: 260378629 (before // 2,   fmode_frac: [0.25, 0.25])
+# parameters: 260378629 (after // 2, fmode_frac: [0.5, 0.5])
 torch_dataset_name: temp_input_dataset 
 
 # torch distributed does not support complex parameters
@@ -6,7 +7,7 @@ distributed: False
 
 train:
   max_epochs: 350 
-  batch_size: 20
+  batch_size: 4
   shuffle_data: True
   time_window: 5
   future_window: 5
@@ -17,8 +18,8 @@ train:
 
 model:
   model_name: gfno
-  fmode_frac: [0.66, 0.66] # [0.25, 0.25]
-  width: 32 # 64
+  fmode_frac: [0.5, 0.5] # [0.25, 0.25]
+  width: 64
   reflection: False
   domain_padding: 0
 

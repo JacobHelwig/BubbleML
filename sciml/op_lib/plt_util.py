@@ -23,7 +23,7 @@ def plt_iter_mae(temps, labels):
     for i in range(len(temps)):
         rmse = torch.sqrt(torch.mean(((temps[i] - labels[i]) ** 2).detach().cpu()))
         rmses.append(rmse)
-    job_id = os.environ['SLURM_JOB_ID']
+    job_id = "job_id0" # os.environ['SLURM_JOB_ID']
     job_path = Path(f'test_im/temp/{job_id}/')
     job_path.mkdir(parents=True, exist_ok=True)
     with open(str(job_path) + 'iter_rmse', 'w+') as f:
@@ -71,7 +71,7 @@ def plt_temp(temps, labels, model_name):
                     transparent=True)
         plt.close()
     """
-    job_id = os.environ['SLURM_JOB_ID']
+    job_id = "job_id0" # os.environ['SLURM_JOB_ID']
     im_path = Path(f'test_im/temp/{job_id}/')
     im_path.mkdir(parents=True, exist_ok=True)
     torch.save(temps, f'{im_path}/model_ouput.pt')

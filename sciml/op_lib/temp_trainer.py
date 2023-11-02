@@ -112,7 +112,8 @@ class TempTrainer:
             global_iter = epoch * len(self.val_dataloader) + iter
             write_metrics(pred, label, global_iter, 'Val', self.writer)
             del temp, vel, label
-
+            torch.cuda.empty_cache()
+            
     def test(self, dataset, max_timestep=200):
         if is_leader_process():
             self.model.eval()
