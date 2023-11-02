@@ -173,7 +173,8 @@ def train_app(cfg):
     np = sum(p.numel() * (1 + p.is_complex()) for p in model.parameters())
     print(f'Model has {np} parameters')
 
-    optimizer = torch.optim.Adam(model.parameters(),
+    
+    optimizer = torch.optim.AdamW(model.parameters(),
                                   lr=dist_utils.world_size() * exp.optimizer.initial_lr,
                                   weight_decay=exp.optimizer.weight_decay)
 
@@ -181,8 +182,11 @@ def train_app(cfg):
     warmup_iters = max(1, int(math.sqrt(dist_utils.world_size()) * 0.03 * total_iters))
     warmup_lr = LinearWarmupLR(optimizer, warmup_iters)
     warm_iters = total_iters - warmup_iters
+
     if exp.lr_scheduler.name == 'step':
         warm_schedule = torch.optim.lr_scheduler.StepLR(optimizer,
+                                                        # scaled by len(dataloader) because we check each step
+                                                        # so it's compatible with cosine scheduler
                                                         step_size=exp.lr_scheduler.patience * len(train_dataloader),
                                                         gamma=exp.lr_scheduler.factor)
     elif exp.lr_scheduler.name == 'cosine':
