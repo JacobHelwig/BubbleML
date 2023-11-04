@@ -1,33 +1,31 @@
-# Model has 56510469 parameters
 torch_dataset_name: temp_input_dataset 
 
 # torch distributed does not support complex parameters
 distributed: False
 
 train:
-  max_epochs: 250 # 350 
-  batch_size: 8 # 20
+  max_epochs: 250 
+  batch_size: 4
   shuffle_data: True
   time_window: 5
   future_window: 5
   push_forward_steps: 1
   use_coords: True
   noise: True
-  downsample_factor: 1 # 4 
+  downsample_factor: 2 
 
 model:
   model_name: gfno
-  fmode_frac: [0.165, 0.165] # [0.25, 0.25]
-  width: 32 # 64
+  modes: 64
+  width: 128
   reflection: False
   domain_padding: 0.1
 
 optimizer:
   initial_lr: 1e-3
-  weight_decay: 1e-6
+  weight_decay: 0.01
 
 lr_scheduler:
-  name: step # cosine
-  patience: 75
+  name: step
   factor: 0.5
-  # eta_min: 1e-6 # NEW
+  patience: 75
